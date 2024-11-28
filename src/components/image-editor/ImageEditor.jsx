@@ -1,13 +1,24 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import {
+  MdOutlineCrop,
+  MdCropOriginal,
+  MdOutlineFlip,
+  MdOutlineRotateLeft,
+  MdOutlineRotateRight,
+  MdOutlineCrop169,
+  MdOutlineCrop75,
+  MdOutlineCropDin,
+} from "react-icons/md";
+import { Spinner } from "@/components/Spinner";
+import ImageEditorTools from "./ImageEditorTools";
 
 const ImageEditor = ({ image, onAfterSave }) => {
   const [loading, setLoading] = useState(true);
+  const [aspectRation, setAspectRation] = useState("free");
   const imgRef = useRef(null);
 
   useLayoutEffect(() => {
-    console.log(imgRef.current.offsetWidth, image.width / image.height);
     const proportion = image.width / image.height;
-    console.log(imgRef.current.offsetWidth);
     imgRef.current.style.height = `${
       imgRef.current.offsetWidth / proportion
     }px`;
@@ -15,12 +26,17 @@ const ImageEditor = ({ image, onAfterSave }) => {
 
   return (
     <div className="mt-4">
-      <div ref={imgRef} className="flex justify-center items-center">
-        {/* <img
+      <ImageEditorTools
+        aspectRation={aspectRation}
+        setAspectRation={setAspectRation}
+      />
+      <div ref={imgRef} className="relative flex justify-center items-center">
+        {loading && <Spinner className="size-6" />}
+        <img
           onLoad={() => setLoading(false)}
           src={image.original}
           alt={image.id}
-        /> */}
+        />
       </div>
     </div>
   );
