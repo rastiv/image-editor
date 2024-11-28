@@ -1,14 +1,4 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import {
-  MdOutlineCrop,
-  MdCropOriginal,
-  MdOutlineFlip,
-  MdOutlineRotateLeft,
-  MdOutlineRotateRight,
-  MdOutlineCrop169,
-  MdOutlineCrop75,
-  MdOutlineCropDin,
-} from "react-icons/md";
 import { Spinner } from "@/components/Spinner";
 import ImageEditorTools from "./ImageEditorTools";
 
