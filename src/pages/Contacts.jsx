@@ -1,8 +1,8 @@
 import { QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import Button from "../components/Button";
-import ContactCard from "../components/ContactCard";
-import { useContactContextState } from "../providers/ContactsProvider";
-import Modal from "../components/modal/Modal";
+import Button from "@/components/Button";
+import ContactCard from "@/components/ContactCard";
+import { useContactContextState } from "@/providers/ContactsProvider";
+import Modal from "@/components/modal/Modal";
 
 const Contacts = () => {
   const { contacts } = useContactContextState();

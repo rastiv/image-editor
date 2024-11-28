@@ -1,6 +1,6 @@
 import { useState, createContext, useContext } from "react";
 import PropTypes from "prop-types";
-import { CONTACTS } from "../assets/contacts";
+import { CONTACTS } from "@/assets/contacts";
 
 let sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

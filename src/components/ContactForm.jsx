@@ -1,5 +1,4 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import { useContactContextState } from "../providers/ContactsProvider";
+import { useContactContextState } from "@/providers/ContactsProvider";
 import { Spinner } from "./Spinner";
 import Modal from "./modal/Modal";
 

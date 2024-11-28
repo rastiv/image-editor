@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Pencil1Icon } from "@radix-ui/react-icons";
-import ContactForm from "../components/ContactForm";
+import ContactForm from "@/components/ContactForm";
 import Modal from "./modal/Modal";
 
 const ContactCard = ({ contact }) => {
