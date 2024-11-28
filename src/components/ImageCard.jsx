@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Spinner } from "@/components/Spinner";
 import Modal from "@/components/modal/Modal";
+import ImageEditor from "./image-editor/ImageEditor";
 
 const ImageCard = ({ image }) => {
   const [loading, setLoading] = useState(true);
@@ -68,8 +69,7 @@ const ImageCard = ({ image }) => {
       </div>
       <Modal open={open} onOpenChange={setOpen}>
         <Modal.Content title="Edit Image">
-          <pre>{JSON.stringify(image, null, 2)}</pre>
-          {/* <ContactForm contact={contact} onAfterSave={() => setOpen(false)} /> */}
+          <ImageEditor image={image} onAfterSave={() => setOpen(false)} />
         </Modal.Content>
       </Modal>
     </>
