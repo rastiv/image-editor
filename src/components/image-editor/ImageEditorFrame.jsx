@@ -4,18 +4,26 @@ const lineStyle = "absolute border border-dashed border-white opacity-50";
 const pointerStyle =
   "absolute size-2 box-border border border-blue-400 bg-white";
 
-const ImageEditorFrame = ({ clippedImage, position, setPosition }) => {
+const ImageEditorFrame = ({ clippedImage, position, ratio, setPosition }) => {
+  const handleMoveStart = (e) => {
+    console.log(e.target);
+  };
   const handleMove = (e) => {
-    console.log(e);
+    console.log(e.target);
+  };
+  const handleMoveEnd = (e) => {
+    console.log(e.target);
   };
   const handleResize = (e) => {};
 
   return (
     <div
       className="absolute inset-0 box-border bg-transparent cursor-move border border-blue-500"
-      onDragStart={handleMove}
+      draggable="true"
+      onDragStart={handleMoveStart}
       onDrag={handleMove}
-      onDragEnd={handleMove}
+      onDragEnd={handleMoveEnd}
+      onClick={() => console}
       style={{
         top: position.y,
         left: position.x,

@@ -3,8 +3,41 @@ import { Spinner } from "@/components/Spinner";
 import ImageEditorTools from "./ImageEditorTools";
 import ImageEditorFrame from "./ImageEditorFrame";
 
-const getInitalPositions = (image, ration) => {};
-const offsetPercent = 10 / 100;
+const offsetPercent = 0.1;
+
+const getInitalPositions = (ratio, width, height) => {
+  const proportion = width / height;
+  let position = { x: 0, y: 0, w: 0, h: 0 };
+  switch (ratio) {
+    case "1:1": {
+      position.w = Math.round(
+        (proportion > 1 ? height : width) * (1 - offsetPercent * 2)
+      );
+      position.h = position.w;
+      break;
+    }
+    case "16:9":
+    case "4:3": {
+      const ratioProportion = ratio.split(":").reduce((a, b) => a / b);
+      if (proportion > ratioProportion) {
+        position.h = height * (1 - offsetPercent * 2);
+        position.w = position.h * ratioProportion;
+      } else {
+        position.w = width * (1 - offsetPercent * 2);
+        position.h = position.w / ratioProportion;
+      }
+      break;
+    }
+    default: {
+      position.w = width * (1 - offsetPercent * 2);
+      position.h = height * (1 - offsetPercent * 2);
+      break;
+    }
+  }
+  position.x = (width - position.w) / 2;
+  position.y = (height - position.h) / 2;
+  return position;
+};
 
 const ImageEditor = ({ image, onAfterSave }) => {
   const [loading, setLoading] = useState(true);
@@ -23,29 +56,7 @@ const ImageEditor = ({ image, onAfterSave }) => {
   useEffect(() => {
     if (!loading) {
       const { offsetWidth, offsetHeight } = wrapperRef.current;
-      const proportion = offsetWidth / offsetHeight;
-      let position = { x: 0, y: 0, w: 0, h: 0 };
-      switch (ratio) {
-        case "1:1": {
-          const size = Math.round(
-            (proportion > 1 ? offsetHeight : offsetWidth) *
-              (1 - offsetPercent * 2)
-          );
-          console.log(size);
-          position.x = proportion > 1 ? (offsetWidth - offsetHeight) / 2 : 0;
-          position.y = proportion > 1 ? 0 : (offsetHeight - offsetWidth) / 2;
-          position.w = size;
-          position.h = size;
-          break;
-        }
-        default:
-          position.x = proportion > 1 ? (offsetWidth - offsetHeight) / 2 : 0;
-          position.y = proportion > 1 ? 0 : (offsetHeight - offsetWidth) / 2;
-          position.w = proportion > 1 ? offsetHeight : offsetWidth;
-          position.h = proportion > 1 ? offsetHeight : offsetWidth;
-          break;
-      }
-      setPosition(position);
+      setPosition(getInitalPositions(ratio, offsetWidth, offsetHeight));
     }
   }, [ratio, loading]);
 
@@ -77,6 +88,7 @@ const ImageEditor = ({ image, onAfterSave }) => {
           <ImageEditorFrame
             clippedImage={clippedRef.current}
             position={position}
+            ration={ratio}
             setPosition={setPosition}
           />
         )}
