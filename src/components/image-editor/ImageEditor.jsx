@@ -5,44 +5,44 @@ import ImageEditorFrame from "./ImageEditorFrame";
 
 const offsetPercent = 0.1;
 
-const getInitalPositions = (ratio, width, height) => {
+const getInitalCrop = (ratio, width, height) => {
   const proportion = width / height;
-  let position = { x: 0, y: 0, w: 0, h: 0 };
+  let crop = { x: 0, y: 0, w: 0, h: 0 };
   switch (ratio) {
     case "1:1": {
-      position.w = Math.round(
+      crop.w = Math.round(
         (proportion > 1 ? height : width) * (1 - offsetPercent * 2)
       );
-      position.h = position.w;
+      crop.h = crop.w;
       break;
     }
     case "16:9":
     case "4:3": {
       const ratioProportion = ratio.split(":").reduce((a, b) => a / b);
       if (proportion > ratioProportion) {
-        position.h = height * (1 - offsetPercent * 2);
-        position.w = position.h * ratioProportion;
+        crop.h = height * (1 - offsetPercent * 2);
+        crop.w = crop.h * ratioProportion;
       } else {
-        position.w = width * (1 - offsetPercent * 2);
-        position.h = position.w / ratioProportion;
+        crop.w = width * (1 - offsetPercent * 2);
+        crop.h = crop.w / ratioProportion;
       }
       break;
     }
     default: {
-      position.w = width * (1 - offsetPercent * 2);
-      position.h = height * (1 - offsetPercent * 2);
+      crop.w = width * (1 - offsetPercent * 2);
+      crop.h = height * (1 - offsetPercent * 2);
       break;
     }
   }
-  position.x = (width - position.w) / 2;
-  position.y = (height - position.h) / 2;
-  return position;
+  crop.x = (width - crop.w) / 2;
+  crop.y = (height - crop.h) / 2;
+  return crop;
 };
 
 const ImageEditor = ({ image, onAfterSave }) => {
   const [loading, setLoading] = useState(true);
   const [ratio, setRatio] = useState("1:1");
-  const [position, setPosition] = useState({});
+  const [crop, setCrop] = useState({});
   const wrapperRef = useRef(null);
   const clippedRef = useRef(null);
 
@@ -56,7 +56,7 @@ const ImageEditor = ({ image, onAfterSave }) => {
   useEffect(() => {
     if (!loading) {
       const { offsetWidth, offsetHeight } = wrapperRef.current;
-      setPosition(getInitalPositions(ratio, offsetWidth, offsetHeight));
+      setCrop(getInitalCrop(ratio, offsetWidth, offsetHeight));
     }
   }, [ratio, loading]);
 
@@ -81,15 +81,16 @@ const ImageEditor = ({ image, onAfterSave }) => {
           className="absolute inset-0"
           style={{
             opacity: loading ? 0 : 1,
-            clipPath: `xywh(${position.x}px ${position.y}px ${position.w}px ${position.h}px)`,
+            clipPath: `xywh(${crop.x}px ${crop.y}px ${crop.w}px ${crop.h}px)`,
           }}
         />
         {!loading && (
           <ImageEditorFrame
+            wrapper={wrapperRef.current}
             clippedImage={clippedRef.current}
-            position={position}
             ration={ratio}
-            setPosition={setPosition}
+            crop={crop}
+            setCrop={setCrop}
           />
         )}
       </div>

@@ -1,34 +1,76 @@
-import React from "react";
+import { useEffect, useRef } from "react";
 
 const lineStyle = "absolute border border-dashed border-white opacity-50";
 const pointerStyle =
   "absolute size-2 box-border border border-blue-400 bg-white";
 
-const ImageEditorFrame = ({ clippedImage, position, ratio, setPosition }) => {
+const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
+  const frameRef = useRef(null);
+  const pivotRef = useRef(false);
+
   const handleMoveStart = (e) => {
-    console.log(e.target);
+    pivotRef.current = { x: e.clientX, y: e.clientY };
   };
-  const handleMove = (e) => {
-    console.log(e.target);
-  };
-  const handleMoveEnd = (e) => {
-    console.log(e.target);
-  };
-  const handleResize = (e) => {};
+
+  const handleCrop = (e) => {};
+
+  useEffect(() => {
+    const handleMove = (e) => {
+      if (!pivotRef.current) return;
+      const { offsetWidth: wrpWidth, offsetHeight: wrpHeight } = wrapper;
+      const { offsetWidth: frmWidth, offsetHeight: frmHeight } =
+        frameRef.current;
+      const { x, y } = pivotRef.current;
+      const el = frameRef.current;
+
+      const newX = crop.x + (e.clientX - x);
+      const newY = crop.y + (e.clientY - y);
+
+      const left =
+        newX > 0
+          ? newX + frmWidth > wrpWidth
+            ? wrpWidth - frmWidth
+            : newX
+          : 0;
+      const top =
+        newY > 0
+          ? newY + frmHeight > wrpHeight
+            ? wrpHeight - frmHeight
+            : newY
+          : 0;
+
+      el.style.top = `${top}px`;
+
+      el.style.left = `${left}px`;
+      clippedImage.style.clipPath = `xywh(${left}px ${top}px ${crop.w}px ${crop.h}px)`;
+    };
+
+    const handelMoveEnd = () => {
+      pivotRef.current = false;
+      const { offsetLeft, offsetTop } = frameRef.current;
+      setCrop({ ...crop, x: offsetLeft, y: offsetTop });
+    };
+
+    document.addEventListener("mousemove", handleMove);
+    document.addEventListener("mouseup", handelMoveEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", handleMove);
+      document.removeEventListener("mouseup", handelMoveEnd);
+    };
+  }, [clippedImage.style, crop, setCrop, wrapper]);
 
   return (
     <div
+      ref={frameRef}
       className="absolute inset-0 box-border bg-transparent cursor-move border border-blue-500"
-      draggable="true"
-      onDragStart={handleMoveStart}
-      onDrag={handleMove}
-      onDragEnd={handleMoveEnd}
+      onMouseDown={handleMoveStart}
       onClick={() => console}
       style={{
-        top: position.y,
-        left: position.x,
-        width: position.w,
-        height: position.h,
+        top: crop.y,
+        left: crop.x,
+        width: crop.w,
+        height: crop.h,
       }}
     >
       <span
