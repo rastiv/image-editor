@@ -88,7 +88,7 @@ const ImageEditor = ({ image, onAfterSave }) => {
           <ImageEditorFrame
             wrapper={wrapperRef.current}
             clippedImage={clippedRef.current}
-            ration={ratio}
+            ratio={ratio}
             crop={crop}
             setCrop={setCrop}
           />
