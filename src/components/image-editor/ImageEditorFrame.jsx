@@ -60,9 +60,6 @@ const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
       // handle resizing the frame
       if (directionRef.current) {
         const el = frameRef.current;
-        const { x: x2, y: y2 } = startPointRef.current;
-        const { offsetWidth: wrpWidth, offsetHeight: wrpHeight } = wrapper;
-        let { x: newX, y: newY, w: newW, h: newH } = crop;
 
         const { x, y, w, h } = getCropPositions(
           directionRef.current,
@@ -71,7 +68,8 @@ const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
           startPointRef.current.y,
           e.clientX,
           e.clientY,
-          wrapper,
+          wrapper.offsetWidth,
+          wrapper.offsetHeight,
           crop,
           el
         );
@@ -109,7 +107,7 @@ const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
   return (
     <div
       ref={frameRef}
-      className="absolute inset-0 box-border bg-transparent cursor-move border border-blue-500"
+      className="absolute inset-0 box-border bg-transparent cursor-move"
       onMouseDown={handleMoveStart}
       style={{
         top: crop.y,
@@ -123,6 +121,22 @@ const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
       />
       <span
         className={`${lineStyle} left-0 top-[33%] w-full h-[33%] border-l-0 border-r-0`}
+      />
+      <span
+        className="absolute left-0 top-0 w-full h-[2px] -translate-y-[1px] bg-blue-500 cursor-ns-resize"
+        onMouseDown={(e) => handleCropStart(e, "t", "ns")}
+      />
+      <span
+        className="absolute right-0 top-0 h-full w-[2px] translate-x-[1px] bg-blue-500 cursor-ew-resize"
+        onMouseDown={(e) => handleCropStart(e, "r", "ew")}
+      />
+      <span
+        className="absolute left-0 bottom-0 w-full h-[2px] translate-y-[1px] bg-blue-500 cursor-ns-resize"
+        onMouseDown={(e) => handleCropStart(e, "b", "ns")}
+      />
+      <span
+        className="absolute left-0 top-0 h-full w-[2px] -translate-x-[1px] bg-blue-500 cursor-ew-resize"
+        onMouseDown={(e) => handleCropStart(e, "l", "ew")}
       />
       <span
         className={`${pointerStyle} -top-1 -left-1 cursor-nwse-resize`}
