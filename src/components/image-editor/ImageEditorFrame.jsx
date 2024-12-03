@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { getCropPositions } from "./editor-utils";
 
 const lineStyle = "absolute border border-dashed border-white opacity-50";
 const pointerStyle =
@@ -62,91 +63,24 @@ const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
         const { x: x2, y: y2 } = startPointRef.current;
         const { offsetWidth: wrpWidth, offsetHeight: wrpHeight } = wrapper;
         let { x: newX, y: newY, w: newW, h: newH } = crop;
-        const ratioProportion =
-          ratio === "original"
-            ? wrpWidth / wrpHeight
-            : ratio === "free"
-            ? 0
-            : ratio.split(":").reduce((a, b) => a / b);
 
-        if (ratioProportion === 0) {
-          if (["r", "tr", "br"].includes(directionRef.current)) {
-            newW += e.clientX - x2;
-            if (newW + newX > wrpWidth) newW = wrpWidth - newX;
-          }
-          if (["b", "bl", "br"].includes(directionRef.current)) {
-            newH += e.clientY - y2;
-            if (newH + newY > wrpHeight) newH = wrpHeight - newY;
-          }
-          if (["l", "bl", "tl"].includes(directionRef.current)) {
-            const right = wrpWidth - crop.w - crop.x;
-            newX += e.clientX - x2;
-            if (newX < 0) newX = 0;
-            newW = wrpWidth - newX - right;
-          }
-          if (["t", "tl", "tr"].includes(directionRef.current)) {
-            const bottom = wrpHeight - crop.h - crop.y;
-            newY += e.clientY - y2;
-            if (newY < 0) newY = 0;
-            newH = wrpHeight - newY - bottom;
-          }
-        }
+        const { x, y, w, h } = getCropPositions(
+          directionRef.current,
+          ratio,
+          startPointRef.current.x,
+          startPointRef.current.y,
+          e.clientX,
+          e.clientY,
+          wrapper,
+          crop,
+          el
+        );
 
-        // if (directionRef.current === "br") {
-        //   //
-        // }
-        // if (["r", "tr"].includes(directionRef.current)) {
-        //   newW += e.clientX - x2;
-        //   if (newW < 40) newW = 40;
-        //   if (newW + newX > wrpWidth) newW = wrpWidth - newX;
-        //   if (ratioProportion !== 0) newH = Math.round(newW / ratioProportion);
-        // }
-        // if (["b", "bl"].includes(directionRef.current)) {
-        //   newH += e.clientY - y2;
-        //   if (newH < 40) newH = 40;
-        //   if (newH + newY > wrpHeight) newH = wrpHeight - newY;
-        //   if (ratioProportion !== 0) newW = Math.round(newH * ratioProportion);
-        // }
-        // if (["l", "bl", "tl"].includes(directionRef.current)) {
-        //   const right = wrpWidth - crop.w - crop.x;
-        //   newX += e.clientX - x2;
-        //   if (newX < 0) newX = 0;
-        //   newW = wrpWidth - newX - right;
-        //   if (newW < 40) {
-        //     newW = 40;
-        //     newX = wrpWidth - right - 40;
-        //   }
-        // }
-        // if (["t", "tl", "tr"].includes(directionRef.current)) {
-        //   const bottom = wrpHeight - crop.h - crop.y;
-        //   newY += e.clientY - y2;
-        //   if (newY < 0) newY = 0;
-        //   newH = wrpHeight - newY - bottom;
-        //   if (newH < 40) {
-        //     newH = 40;
-        //     newY = wrpHeight - bottom - 40;
-        //   }
-        //   if (ratioProportion !== 0) {
-        //     newW = Math.round(newH * ratioProportion);
-        //     newY = wrpHeight - newH - bottom;
-        //   }
-        // }
-
-        // if (newH + newY > wrpHeight) {
-        //   newH = wrpHeight - newY;
-        //   if (ratioProportion !== 0) newW = Math.round(newH * ratioProportion);
-        // }
-
-        // if (newW + newX > wrpWidth) {
-        //   newW = wrpWidth - newX;
-        //   if (ratioProportion !== 0) newH = Math.round(newW / ratioProportion);
-        // }
-
-        el.style.left = `${newX}px`;
-        el.style.top = `${newY}px`;
-        el.style.width = `${newW}px`;
-        el.style.height = `${newH}px`;
-        clippedImage.style.clipPath = `xywh(${newX}px ${newY}px ${newW}px ${newH}px)`;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.style.width = `${w}px`;
+        el.style.height = `${h}px`;
+        clippedImage.style.clipPath = `xywh(${x}px ${y}px ${w}px ${h}px)`;
       }
     };
 
