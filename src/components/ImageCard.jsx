@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Spinner } from "@/components/Spinner";
 import Modal from "@/components/modal/Modal";
 import ImageEditor from "./image-editor/ImageEditor";
@@ -7,34 +7,6 @@ const ImageCard = ({ image }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [open, setOpen] = useState(false);
-
-  // useEffect(() => {
-  //   if (image.id === "43") {
-  //     const img = new Image();
-  //     img.crossOrigin = "Anonymous"; // This is important if the image is from a different origin
-  //     img.src = image.original;
-
-  //     img.onload = () => {
-  //       const canvas = document.createElement("canvas");
-  //       canvas.width = image.width / 2;
-  //       canvas.height = image.height / 2;
-  //       const ctx = canvas.getContext("2d");
-  //       ctx.drawImage(
-  //         img, // image element
-  //         0, // x position to start clipping
-  //         0, // y position to start clipping
-  //         image.width / 2, // width of clipped image
-  //         image.height / 2, // height of clipped image
-  //         0, // x position to place the image on the canvas (should be 0)
-  //         0, // y position to place the image on the canvas (should be 0)
-  //         image.width / 2, // width of the image to use (should be the same as clipped image width)
-  //         image.height / 2 // height of the image to use (should be the same as clipped image height)
-  //       );
-  //       const base64String = canvas.toDataURL("image/png");
-  //       console.log(base64String);
-  //     };
-  //   }
-  // }, []);
 
   return (
     <>
@@ -68,7 +40,7 @@ const ImageCard = ({ image }) => {
         </div>
       </div>
       <Modal open={open} onOpenChange={setOpen}>
-        <Modal.Content title="Edit Image">
+        <Modal.Content title="Crop Image">
           <ImageEditor image={image} onAfterSave={() => setOpen(false)} />
         </Modal.Content>
       </Modal>

@@ -3,7 +3,7 @@ import { getCropPositions } from "./editor-utils";
 
 const lineStyle = "absolute border border-dashed border-white opacity-50";
 const pointerStyle =
-  "absolute size-2 box-border border border-blue-400 bg-white";
+  "absolute size-2 box-border border border-blue-500 bg-white";
 
 const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
   const frameRef = useRef(null);

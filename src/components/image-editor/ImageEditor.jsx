@@ -2,6 +2,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Spinner } from "@/components/Spinner";
 import ImageEditorTools from "./ImageEditorTools";
 import ImageEditorFrame from "./ImageEditorFrame";
+import ImageEditorActions from "./ImageEditorActions";
+import ImageEditorForm from "./ImageEditorForm";
 
 const offsetPercent = 0.1;
 
@@ -39,10 +41,11 @@ const getInitalCrop = (ratio, width, height) => {
   return crop;
 };
 
-const ImageEditor = ({ image, onAfterSave }) => {
+const ImageEditor = ({ image, onSave }) => {
   const [loading, setLoading] = useState(true);
   const [ratio, setRatio] = useState("1:1");
   const [crop, setCrop] = useState({});
+  const [apply, setApply] = useState(false);
   const wrapperRef = useRef(null);
   const clippedRef = useRef(null);
 
@@ -60,8 +63,18 @@ const ImageEditor = ({ image, onAfterSave }) => {
     }
   }, [ratio, loading]);
 
+  const handleReset = () => {
+    setCrop(
+      getInitalCrop(
+        ratio,
+        wrapperRef.current.offsetWidth,
+        wrapperRef.current.offsetHeight
+      )
+    );
+  };
+
   return (
-    <div className="mt-4">
+    <div className="relative mt-4 py-[1px] overflow-hidden">
       <ImageEditorTools ratio={ratio} setRatio={setRatio} />
       <div
         ref={wrapperRef}
@@ -94,6 +107,18 @@ const ImageEditor = ({ image, onAfterSave }) => {
           />
         )}
       </div>
+      <ImageEditorActions
+        loading={loading}
+        onReset={handleReset}
+        setApply={setApply}
+      />
+      <ImageEditorForm
+        apply={apply}
+        setApply={setApply}
+        crop={crop}
+        image={image}
+        onSave={onSave}
+      />
     </div>
   );
 };
