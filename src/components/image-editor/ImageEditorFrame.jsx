@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getCropPositions } from "./editor-utils";
+import { getCropPoints } from "./editor-utils";
 
 const lineStyle = "absolute border border-dashed border-white opacity-50";
 const pointerStyle =
@@ -61,7 +61,7 @@ const ImageEditorFrame = ({ wrapper, clippedImage, ratio, crop, setCrop }) => {
       if (directionRef.current) {
         const el = frameRef.current;
 
-        const { x, y, w, h } = getCropPositions(
+        const { x, y, w, h } = getCropPoints(
           directionRef.current,
           ratio,
           startPointRef.current.x,

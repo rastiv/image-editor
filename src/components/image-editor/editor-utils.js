@@ -1,13 +1,13 @@
-export const getCropPositions = (...args) => {
+export const getCropPoints = (...args) => {
   const dir = args.shift();
-  if (dir === "r") return getCropPositionsR(...args);
-  if (dir === "l") return getCropPositionsL(...args);
-  if (dir === "t") return getCropPositionsT(...args);
-  if (dir === "b") return getCropPositionsB(...args);
-  if (dir === "tl") return getCropPositionsTL(...args);
-  if (dir === "tr") return getCropPositionsTR(...args);
-  if (dir === "bl") return getCropPositionsBL(...args);
-  if (dir === "br") return getCropPositionsBR(...args);
+  if (dir === "r") return getCropPointsR(...args);
+  if (dir === "l") return getCropPointsL(...args);
+  if (dir === "t") return getCropPointsT(...args);
+  if (dir === "b") return getCropPointsB(...args);
+  if (dir === "tl") return getCropPointsTL(...args);
+  if (dir === "tr") return getCropPointsTR(...args);
+  if (dir === "bl") return getCropPointsBL(...args);
+  if (dir === "br") return getCropPointsBR(...args);
 };
 
 const minSize = 32;
@@ -26,7 +26,7 @@ const getDefaultCrop = (el) => ({
   h: el.offsetHeight,
 });
 
-const getCropPositionsR = (...args) => {
+const getCropPointsR = (...args) => {
   const [ratio, startX, clientX, width, height, crop, el] = args.filter(
     (_, i) => i !== 2 && i !== 4
   );
@@ -57,7 +57,7 @@ const getCropPositionsR = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsL = (...args) => {
+const getCropPointsL = (...args) => {
   const [ratio, startX, clientX, width, height, crop, el] = args.filter(
     (_, i) => i !== 2 && i !== 4
   );
@@ -88,7 +88,7 @@ const getCropPositionsL = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsT = (...args) => {
+const getCropPointsT = (...args) => {
   const [ratio, startY, clientY, width, height, crop, el] = args.filter(
     (_, i) => i !== 1 && i !== 3
   );
@@ -119,7 +119,7 @@ const getCropPositionsT = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsB = (...args) => {
+const getCropPointsB = (...args) => {
   const [ratio, startY, clientY, width, height, crop, el] = args.filter(
     (_, i) => i !== 1 && i !== 3
   );
@@ -150,7 +150,7 @@ const getCropPositionsB = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsTL = (...args) => {
+const getCropPointsTL = (...args) => {
   const [ratio, startX, startY, clientX, clientY, width, height, crop, el] =
     args;
   let { x, y, w, h } = crop;
@@ -198,7 +198,7 @@ const getCropPositionsTL = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsTR = (...args) => {
+const getCropPointsTR = (...args) => {
   const [ratio, startX, startY, clientX, clientY, width, height, crop, el] =
     args;
   let { x, y, w, h } = crop;
@@ -239,7 +239,7 @@ const getCropPositionsTR = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsBL = (...args) => {
+const getCropPointsBL = (...args) => {
   const [ratio, startX, startY, clientX, clientY, width, height, crop, el] =
     args;
   let { x, y, w, h } = crop;
@@ -280,7 +280,7 @@ const getCropPositionsBL = (...args) => {
   return { x, y, w, h };
 };
 
-const getCropPositionsBR = (...args) => {
+const getCropPointsBR = (...args) => {
   const [ratio, startX, startY, clientX, clientY, width, height, crop, el] =
     args;
   let { x, y, w, h } = crop;

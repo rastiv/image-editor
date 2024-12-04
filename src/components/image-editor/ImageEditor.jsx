@@ -74,7 +74,7 @@ const ImageEditor = ({ image, onSave }) => {
   };
 
   return (
-    <div className="relative mt-4 py-[1px] overflow-hidden">
+    <div className="relative mt-4 py-[1px]">
       <ImageEditorTools ratio={ratio} setRatio={setRatio} />
       <div
         ref={wrapperRef}
@@ -112,13 +112,16 @@ const ImageEditor = ({ image, onSave }) => {
         onReset={handleReset}
         setApply={setApply}
       />
-      <ImageEditorForm
-        apply={apply}
-        setApply={setApply}
-        crop={crop}
-        image={image}
-        onSave={onSave}
-      />
+      {apply && (
+        <ImageEditorForm
+          setApply={setApply}
+          crop={crop}
+          width={wrapperRef.current?.offsetWidth}
+          wrapper={wrapperRef.current}
+          image={image}
+          onSave={onSave}
+        />
+      )}
     </div>
   );
 };

@@ -8,6 +8,11 @@ const ImageCard = ({ image }) => {
   const [error, setError] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const handleSave = (base64) => {
+    console.log(base64);
+    setOpen(false);
+  };
+
   return (
     <>
       <div
@@ -41,7 +46,7 @@ const ImageCard = ({ image }) => {
       </div>
       <Modal open={open} onOpenChange={setOpen}>
         <Modal.Content title="Crop Image">
-          <ImageEditor image={image} onAfterSave={() => setOpen(false)} />
+          <ImageEditor image={image} onSave={handleSave} />
         </Modal.Content>
       </Modal>
     </>
