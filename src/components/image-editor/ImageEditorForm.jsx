@@ -11,23 +11,52 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     img.src = image.original;
 
     img.onload = () => {
-      const ratio = image.width / width;
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(crop.w * ratio);
-      canvas.height = Math.round(crop.h * ratio);
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(
+      // const ratio = image.width / width;
+      // const canvas = document.createElement("canvas");
+      // canvas.width = Math.round(crop.w * ratio);
+      // canvas.height = Math.round(crop.h * ratio);
+      // const ctx = canvas.getContext("2d");
+      // ctx.drawImage(
+      //   img,
+      //   Math.round(crop.x * ratio),
+      //   Math.round(crop.y * ratio),
+      //   Math.round(crop.w * ratio),
+      //   Math.round(crop.h * ratio),
+      //   0,
+      //   0,
+      //   Math.round(crop.w * ratio),
+      //   Math.round(crop.h * ratio)
+      // );
+      // setBase64(canvas.toDataURL("image/jpeg"));
+      // setLoading(false);
+
+      // 1. resize image
+      const newWidth = Math.round(image.width * 0.25);
+      const newHeight = Math.round(image.height * 0.25);
+      const resizedCanvas = document.createElement("canvas");
+      resizedCanvas.width = newWidth;
+      resizedCanvas.height = newHeight;
+      const resizedCtx = resizedCanvas.getContext("2d");
+      resizedCtx.drawImage(
         img,
-        Math.round(crop.x * ratio),
-        Math.round(crop.y * ratio),
-        Math.round(crop.w * ratio),
-        Math.round(crop.h * ratio),
         0,
         0,
-        Math.round(crop.w * ratio),
-        Math.round(crop.h * ratio)
+        image.width,
+        image.height,
+        0,
+        0,
+        newWidth,
+        newHeight
       );
-      setBase64(canvas.toDataURL("image/jpeg"));
+
+      // 2. rotate image
+
+      // 3. flip horizontally
+      // 4. flip vertically
+      // 5. crop image
+
+      setBase64(resizedCanvas.toDataURL("image/jpeg"));
+      console.log(resizedCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
   }, []);

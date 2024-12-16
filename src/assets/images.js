@@ -2,8 +2,10 @@ export const IMAGES = [
   {
     id: "20",
     author: "Aleks Dorohovich",
-    width: 3670,
-    height: 2462,
+    width: 918,
+    height: 616,
+    // width: 3670,
+    // height: 2462,
   },
   {
     id: "27",
