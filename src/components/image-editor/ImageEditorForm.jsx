@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Spinner } from "@/components/Spinner";
-import { canvas } from "framer-motion/client";
+import { degree2Rad, getBoundingRect } from "./editor-utils";
 
 const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
   const [loading, setLoading] = useState(true);
@@ -10,71 +10,6 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     const img = new Image();
     img.crossOrigin = "Anonymous";
     img.src = image.original;
-
-    function getBoundingRect(width, height, degree) {
-      let rad = Degree2Rad(degree);
-      let points = [
-        { x: 0, y: 0 },
-        { x: width, y: 0 },
-        { x: width, y: height },
-        { x: 0, y: height },
-      ];
-      let minX = undefined;
-      let minY = undefined;
-      let maxX = 0;
-      let maxY = 0;
-      for (let index = 0; index < points.length; index++) {
-        const point = points[index];
-        const rotatedPoint = getRotatedPoint(
-          point.x,
-          point.y,
-          width / 2,
-          height / 2,
-          rad
-        );
-        if (minX == undefined) {
-          minX = rotatedPoint.x;
-        } else {
-          minX = Math.min(rotatedPoint.x, minX);
-        }
-        if (minY == undefined) {
-          minY = rotatedPoint.y;
-        } else {
-          minY = Math.min(rotatedPoint.y, minY);
-        }
-        maxX = Math.max(rotatedPoint.x, maxX);
-        maxY = Math.max(rotatedPoint.y, maxY);
-      }
-      let rectWidth = maxX - minX;
-      let rectHeight = maxY - minY;
-      let rect = {
-        x: minX,
-        y: minY,
-        width: rectWidth,
-        height: rectHeight,
-      };
-      return rect;
-    }
-
-    function Degree2Rad(degree) {
-      return (degree * Math.PI) / 180;
-    }
-
-    //https://gamedev.stackexchange.com/questions/86755/how-to-calculate-corner-positions-marks-of-a-rotated-tilted-rectangle
-    function getRotatedPoint(x, y, cx, cy, theta) {
-      let tempX = x - cx;
-      let tempY = y - cy;
-
-      // now apply rotation
-      let rotatedX = tempX * Math.cos(theta) - tempY * Math.sin(theta);
-      let rotatedY = tempX * Math.sin(theta) + tempY * Math.cos(theta);
-
-      // translate back
-      x = rotatedX + cx;
-      y = rotatedY + cy;
-      let point = { x: x, y: y };
-      return point;
-    }
 
     img.onload = () => {
       // const ratio = image.width / width;
@@ -123,15 +58,42 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
       rotatedCanvas.height = rotatedRect.height;
       const rotatedCtx = rotatedCanvas.getContext("2d");
       rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-      rotatedCtx.rotate(Degree2Rad(degree));
+      rotatedCtx.rotate(degree2Rad(degree));
       rotatedCtx.drawImage(resizedCanvas, -newWidth / 2, -newHeight / 2);
 
-      // 3. flip horizontally
-      // 4. flip vertically
+      // 3. flip horizontally and vertically
+      // https://jsfiddle.net/yong/ZJQX5/
+      const flipH = true;
+      const flipV = false;
+      const scaleH =
+        (flipH ? -1 : 1) * (degree === 0 || degree === 180 ? 1 : -1);
+      const scaleV =
+        (flipV ? -1 : 1) * (degree === 0 || degree === 180 ? 1 : -1);
+      const positioX = flipH
+        ? degree === 0 || degree === 180
+          ? rotatedRect.width * -1
+          : rotatedRect.height * -1
+        : 0;
+      const positioY = flipV
+        ? degree === 0 || degree === 180
+          ? rotatedRect.height * -1
+          : rotatedRect.width * -1
+        : 0;
+      const flippedCanvas = document.createElement("canvas");
+      const flippedCtx = flippedCanvas.getContext("2d");
+      flippedCtx.scale(scaleH, scaleV); // Set scale to flip the image
+      flippedCtx.drawImage(
+        img,
+        positioX,
+        positioY,
+        rotatedRect.width,
+        rotatedRect.height
+      ); // draw the image
+
       // 5. crop image
 
       setBase64(rotatedCanvas.toDataURL("image/jpeg"));
-      console.log(rotatedCanvas.toDataURL("image/jpeg"));
+      // console.log(rotatedCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
   }, []);
