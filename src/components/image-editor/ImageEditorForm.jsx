@@ -130,7 +130,7 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
       // 4. flip vertically
       // 5. crop image
 
-      setBase64(resizedCanvas.toDataURL("image/jpeg"));
+      setBase64(rotatedCanvas.toDataURL("image/jpeg"));
       console.log(rotatedCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
