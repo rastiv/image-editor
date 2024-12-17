@@ -12,82 +12,115 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     img.src = image.original;
 
     img.onload = () => {
-      // const ratio = image.width / width;
-      // const canvas = document.createElement("canvas");
-      // canvas.width = Math.round(crop.w * ratio);
-      // canvas.height = Math.round(crop.h * ratio);
-      // const ctx = canvas.getContext("2d");
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      // --- ROTATE ---
+      const degree = 90;
+      canvas.width = degree === 0 || degree === 180 ? img.width : img.height;
+      canvas.height = degree === 0 || degree === 180 ? img.height : img.width;
+      const translateX =
+        degree === 90 ? img.height : degree === 180 ? img.width : 0;
+      const translateY =
+        degree === 180 ? img.height : degree === 270 ? img.width : 0;
+      ctx.translate(translateX, translateY);
+      ctx.rotate(degree2Rad(degree));
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+
+      // const flipH = true;
+      // const flipV = true;
+      // canvas.width = img.width;
+      // canvas.height = img.height;
+      // ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
       // ctx.drawImage(
       //   img,
-      //   Math.round(crop.x * ratio),
-      //   Math.round(crop.y * ratio),
-      //   Math.round(crop.w * ratio),
-      //   Math.round(crop.h * ratio),
-      //   0,
-      //   0,
-      //   Math.round(crop.w * ratio),
-      //   Math.round(crop.h * ratio)
+      //   flipH ? -img.width : 0,
+      //   flipV ? -img.height : 0,
+      //   img.width,
+      //   img.height
       // );
-      // setBase64(canvas.toDataURL("image/jpeg"));
-      // setLoading(false);
 
-      // 1. resize image
-      const newWidth = Math.round(image.width * 0.15);
-      const newHeight = Math.round(image.height * 0.15);
-      const resizedCanvas = document.createElement("canvas");
-      resizedCanvas.width = newWidth;
-      resizedCanvas.height = newHeight;
-      const resizedCtx = resizedCanvas.getContext("2d");
-      resizedCtx.drawImage(
-        img,
-        0,
-        0,
-        image.width,
-        image.height,
-        0,
-        0,
-        newWidth,
-        newHeight
-      );
-
-      // 2. rotate image
-      const degree = 90;
-      const rotatedCanvas = document.createElement("canvas");
-      const rotatedRect = getBoundingRect(newWidth, newHeight, degree);
-      rotatedCanvas.width = rotatedRect.width;
-      rotatedCanvas.height = rotatedRect.height;
-      const rotatedCtx = rotatedCanvas.getContext("2d");
-      rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-      rotatedCtx.rotate(degree2Rad(degree));
-      rotatedCtx.drawImage(resizedCanvas, -newWidth / 2, -newHeight / 2);
-
-      // 3. flip horizontally and vertically
-      // https://jsfiddle.net/yong/ZJQX5/
-      const flipH = true;
-      const flipV = true;
-      const scaleH = flipH ? -1 : 1;
-      const scaleV = flipV ? -1 : 1;
-      const positioX = flipH ? rotatedRect.width * -1 : 0;
-      const positioY = flipV ? rotatedRect.height * -1 : 0;
-      const flippedCanvas = document.createElement("canvas");
-      flippedCanvas.width = rotatedRect.width;
-      flippedCanvas.height = rotatedRect.height;
-      const flippedCtx = flippedCanvas.getContext("2d");
-      flippedCtx.scale(scaleH, scaleV);
-      flippedCtx.drawImage(
-        rotatedCanvas,
-        positioX,
-        positioY,
-        rotatedRect.width,
-        rotatedRect.height
-      );
-
-      // 5. crop image
-
-      setBase64(flippedCanvas.toDataURL("image/jpeg"));
-      // console.log(rotatedCanvas.toDataURL("image/jpeg"));
+      setBase64(canvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
+
+    // img.onload = () => {
+    //   // const ratio = image.width / width;
+    //   // const canvas = document.createElement("canvas");
+    //   // canvas.width = Math.round(crop.w * ratio);
+    //   // canvas.height = Math.round(crop.h * ratio);
+    //   // const ctx = canvas.getContext("2d");
+    //   // ctx.drawImage(
+    //   //   img,
+    //   //   Math.round(crop.x * ratio),
+    //   //   Math.round(crop.y * ratio),
+    //   //   Math.round(crop.w * ratio),
+    //   //   Math.round(crop.h * ratio),
+    //   //   0,
+    //   //   0,
+    //   //   Math.round(crop.w * ratio),
+    //   //   Math.round(crop.h * ratio)
+    //   // );
+    //   // setBase64(canvas.toDataURL("image/jpeg"));
+    //   // setLoading(false);
+
+    //   // 1. resize image
+    //   const newWidth = Math.round(image.width * 0.15);
+    //   const newHeight = Math.round(image.height * 0.15);
+    //   const resizedCanvas = document.createElement("canvas");
+    //   resizedCanvas.width = newWidth;
+    //   resizedCanvas.height = newHeight;
+    //   const resizedCtx = resizedCanvas.getContext("2d");
+    //   resizedCtx.drawImage(
+    //     img,
+    //     0,
+    //     0,
+    //     image.width,
+    //     image.height,
+    //     0,
+    //     0,
+    //     newWidth,
+    //     newHeight
+    //   );
+
+    //   // 2. rotate image
+    //   const degree = 90;
+    //   const rotatedCanvas = document.createElement("canvas");
+    //   const rotatedRect = getBoundingRect(newWidth, newHeight, degree);
+    //   rotatedCanvas.width = rotatedRect.width;
+    //   rotatedCanvas.height = rotatedRect.height;
+    //   const rotatedCtx = rotatedCanvas.getContext("2d");
+    //   rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+    //   rotatedCtx.rotate(degree2Rad(degree));
+    //   rotatedCtx.drawImage(resizedCanvas, -newWidth / 2, -newHeight / 2);
+
+    //   // 3. flip horizontally and vertically
+    //   // https://jsfiddle.net/yong/ZJQX5/
+    //   const flipH = true;
+    //   const flipV = true;
+    //   const scaleH = flipH ? -1 : 1;
+    //   const scaleV = flipV ? -1 : 1;
+    //   const positioX = flipH ? rotatedRect.width * -1 : 0;
+    //   const positioY = flipV ? rotatedRect.height * -1 : 0;
+    //   const flippedCanvas = document.createElement("canvas");
+    //   flippedCanvas.width = rotatedRect.width;
+    //   flippedCanvas.height = rotatedRect.height;
+    //   const flippedCtx = flippedCanvas.getContext("2d");
+    //   flippedCtx.scale(scaleH, scaleV);
+    //   flippedCtx.drawImage(
+    //     rotatedCanvas,
+    //     positioX,
+    //     positioY,
+    //     rotatedRect.width,
+    //     rotatedRect.height
+    //   );
+
+    //   // 5. crop image
+
+    //   setBase64(flippedCanvas.toDataURL("image/jpeg"));
+    //   // console.log(rotatedCanvas.toDataURL("image/jpeg"));
+    //   setLoading(false);
+    // };
   }, []);
 
   return (
