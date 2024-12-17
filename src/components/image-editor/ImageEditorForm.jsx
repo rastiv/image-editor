@@ -64,35 +64,27 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
       // 3. flip horizontally and vertically
       // https://jsfiddle.net/yong/ZJQX5/
       const flipH = true;
-      const flipV = false;
-      const scaleH =
-        (flipH ? -1 : 1) * (degree === 0 || degree === 180 ? 1 : -1);
-      const scaleV =
-        (flipV ? -1 : 1) * (degree === 0 || degree === 180 ? 1 : -1);
-      const positioX = flipH
-        ? degree === 0 || degree === 180
-          ? rotatedRect.width * -1
-          : rotatedRect.height * -1
-        : 0;
-      const positioY = flipV
-        ? degree === 0 || degree === 180
-          ? rotatedRect.height * -1
-          : rotatedRect.width * -1
-        : 0;
+      const flipV = true;
+      const scaleH = flipH ? -1 : 1;
+      const scaleV = flipV ? -1 : 1;
+      const positioX = flipH ? rotatedRect.width * -1 : 0;
+      const positioY = flipV ? rotatedRect.height * -1 : 0;
       const flippedCanvas = document.createElement("canvas");
+      flippedCanvas.width = rotatedRect.width;
+      flippedCanvas.height = rotatedRect.height;
       const flippedCtx = flippedCanvas.getContext("2d");
-      flippedCtx.scale(scaleH, scaleV); // Set scale to flip the image
+      flippedCtx.scale(scaleH, scaleV);
       flippedCtx.drawImage(
-        img,
+        rotatedCanvas,
         positioX,
         positioY,
         rotatedRect.width,
         rotatedRect.height
-      ); // draw the image
+      );
 
       // 5. crop image
 
-      setBase64(rotatedCanvas.toDataURL("image/jpeg"));
+      setBase64(flippedCanvas.toDataURL("image/jpeg"));
       // console.log(rotatedCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
