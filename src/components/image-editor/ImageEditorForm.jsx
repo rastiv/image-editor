@@ -13,7 +13,7 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
 
     img.onload = () => {
       const rotate = 90;
-      const flipH = false;
+      const flipH = true;
       const flipV = false;
       let degree =
         (flipH && !flipV) || (!flipH && flipV) ? rotate * -1 : rotate;
@@ -46,21 +46,21 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
       rotateCtx.drawImage(img, 0, 0, img.width, img.height);
 
       // --- FLIP ---
-      // const flipCanvas = document.createElement("canvas");
-      // const flipCtx = flipCanvas.getContext("2d");
+      const flipCanvas = document.createElement("canvas");
+      const flipCtx = flipCanvas.getContext("2d");
 
-      // flipCanvas.width = img.width;
-      // flipCanvas.height = img.height;
-      // flipCtx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-      // flipCtx.drawImage(
-      //   rotateCanvas,
-      //   flipH ? -img.width : 0,
-      //   flipV ? -img.height : 0,
-      //   img.width,
-      //   img.height
-      // );
+      flipCanvas.width = rotateCanvas.width;
+      flipCanvas.height = rotateCanvas.height;
+      flipCtx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+      flipCtx.drawImage(
+        rotateCanvas,
+        flipH ? -img.height : 0,
+        flipV ? -img.width : 0,
+        rotateCanvas.width,
+        rotateCanvas.height
+      );
 
-      setBase64(rotateCanvas.toDataURL("image/jpeg"));
+      setBase64(flipCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
 
