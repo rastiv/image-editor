@@ -12,35 +12,55 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     img.src = image.original;
 
     img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+      const rotate = 90;
+      const flipH = false;
+      const flipV = false;
+      let degree =
+        (flipH && !flipV) || (!flipH && flipV) ? rotate * -1 : rotate;
 
       // --- ROTATE ---
-      const degree = 90;
-      canvas.width = degree === 0 || degree === 180 ? img.width : img.height;
-      canvas.height = degree === 0 || degree === 180 ? img.height : img.width;
-      const translateX =
-        degree === 90 ? img.height : degree === 180 ? img.width : 0;
-      const translateY =
-        degree === 180 ? img.height : degree === 270 ? img.width : 0;
-      ctx.translate(translateX, translateY);
-      ctx.rotate(degree2Rad(degree));
-      ctx.drawImage(img, 0, 0, img.width, img.height);
+      const rotateCanvas = document.createElement("canvas");
+      const rotateCtx = rotateCanvas.getContext("2d");
 
-      // const flipH = true;
-      // const flipV = true;
-      // canvas.width = img.width;
-      // canvas.height = img.height;
-      // ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-      // ctx.drawImage(
-      //   img,
+      const is90 = degree === 0 || degree === 180 || degree === -180;
+
+      rotateCanvas.width = is90 ? img.width : img.height;
+      rotateCanvas.height = is90 ? img.height : img.width;
+
+      let translateX =
+        degree === 90 || degree === -270
+          ? img.height
+          : degree === 180 || degree === -180
+          ? img.width
+          : 0;
+
+      let translateY =
+        degree === 180 || degree === -180
+          ? img.height
+          : degree === 270 || degree === -90
+          ? img.width
+          : 0;
+
+      rotateCtx.translate(translateX, translateY);
+      rotateCtx.rotate(degree2Rad(degree));
+      rotateCtx.drawImage(img, 0, 0, img.width, img.height);
+
+      // --- FLIP ---
+      // const flipCanvas = document.createElement("canvas");
+      // const flipCtx = flipCanvas.getContext("2d");
+
+      // flipCanvas.width = img.width;
+      // flipCanvas.height = img.height;
+      // flipCtx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
+      // flipCtx.drawImage(
+      //   rotateCanvas,
       //   flipH ? -img.width : 0,
       //   flipV ? -img.height : 0,
       //   img.width,
       //   img.height
       // );
 
-      setBase64(canvas.toDataURL("image/jpeg"));
+      setBase64(rotateCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
 
