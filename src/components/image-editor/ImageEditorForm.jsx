@@ -1,71 +1,95 @@
 import { useState, useEffect } from "react";
 import { Spinner } from "@/components/Spinner";
-import { degree2Rad, getBoundingRect } from "./editor-utils";
+import { degree2Rad } from "./editor-utils";
 
-const canvasResize = (prevCnv, newWidth, newHeight) => {
-  const cnv = document.createElement("canvas");
-  const ctx = cnv.getContext("2d");
-  cnv.width = newWidth;
-  cnv.height = newHeight;
-  ctx.drawImage(prevCnv, 0, 0, newWidth, newHeight);
-  return cnv;
-};
+function updateCanvas(img) {
+  let prevCnv = img;
 
-const canvasRotate = (prevCnv, degree) => {
-  const cnv = document.createElement("canvas");
-  const ctx = cnv.getContext("2d");
-  const is180 = degree === 0 || degree === 180;
+  return {
+    resize: function (width, height) {
+      const cnv = document.createElement("canvas");
+      const ctx = cnv.getContext("2d");
 
-  cnv.width = is180 ? prevCnv.width : prevCnv.height;
-  cnv.height = is180 ? prevCnv.height : prevCnv.width;
+      cnv.width = width;
+      cnv.height = height;
+      ctx.drawImage(prevCnv, 0, 0, width, height);
 
-  let translateX =
-    degree === 90 ? prevCnv.height : degree === 180 ? prevCnv.width : 0;
+      prevCnv = cnv;
+      return this;
+    },
 
-  let translateY =
-    degree === 180 ? prevCnv.height : degree === 270 ? prevCnv.width : 0;
+    rotate: function (deg) {
+      const cnv = document.createElement("canvas");
+      const ctx = cnv.getContext("2d");
 
-  ctx.translate(translateX, translateY);
-  ctx.rotate(degree2Rad(degree));
-  ctx.drawImage(prevCnv, 0, 0, prevCnv.width, prevCnv.height);
-  return cnv;
-};
+      const is180 = deg === 0 || deg === 180;
 
-const canvasFlipHorizontal = (prevCnv, flip) => {
-  const cnv = document.createElement("canvas");
-  const ctx = cnv.getContext("2d");
+      cnv.width = is180 ? prevCnv.width : prevCnv.height;
+      cnv.height = is180 ? prevCnv.height : prevCnv.width;
 
-  cnv.width = prevCnv.width;
-  cnv.height = prevCnv.height;
-  ctx.scale(flip ? -1 : 1, 1);
+      let translateX =
+        deg === 90 ? prevCnv.height : deg === 180 ? prevCnv.width : 0;
 
-  ctx.drawImage(
-    prevCnv,
-    flip ? -prevCnv.width : 0,
-    0,
-    prevCnv.width,
-    prevCnv.height
-  );
-  return cnv;
-};
+      let translateY =
+        deg === 180 ? prevCnv.height : deg === 270 ? prevCnv.width : 0;
 
-const canvasFlipVertical = (prevCnv, flip) => {
-  const cnv = document.createElement("canvas");
-  const ctx = cnv.getContext("2d");
+      ctx.translate(translateX, translateY);
+      ctx.rotate(degree2Rad(deg));
+      ctx.drawImage(prevCnv, 0, 0, prevCnv.width, prevCnv.height);
 
-  cnv.width = prevCnv.width;
-  cnv.height = prevCnv.height;
-  ctx.scale(1, flip ? -1 : 1);
+      prevCnv = cnv;
+      return this;
+    },
 
-  ctx.drawImage(
-    prevCnv,
-    0,
-    flip ? -prevCnv.height : 0,
-    prevCnv.width,
-    prevCnv.height
-  );
-  return cnv;
-};
+    flip: function (direction) {
+      if (!direction) return this;
+
+      const cnv = document.createElement("canvas");
+      const ctx = cnv.getContext("2d");
+
+      cnv.width = prevCnv.width;
+      cnv.height = prevCnv.height;
+      ctx.scale(direction === "H" ? -1 : 1, direction === "V" ? -1 : 1);
+      ctx.drawImage(
+        prevCnv,
+        direction === "H" ? -prevCnv.width : 0,
+        direction === "V" ? -prevCnv.height : 0,
+        prevCnv.width,
+        prevCnv.height
+      );
+
+      prevCnv = cnv;
+      return this;
+    },
+
+    crop: function (x, y, w, h) {
+      const cnv = document.createElement("canvas");
+      const ctx = cnv.getContext("2d");
+
+      const ratio = prevCnv.width / w;
+      cnv.width = Math.round(w * ratio);
+      cnv.height = Math.round(h * ratio);
+      ctx.drawImage(
+        img,
+        Math.round(x * ratio),
+        Math.round(y * ratio),
+        Math.round(w * ratio),
+        Math.round(h * ratio),
+        0,
+        0,
+        Math.round(w * ratio),
+        Math.round(h * ratio)
+      );
+
+      prevCnv = cnv;
+      return this;
+    },
+
+    get: function () {
+      return prevCnv;
+    },
+  };
+}
 
 const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
   const [loading, setLoading] = useState(true);
@@ -77,40 +101,24 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     img.src = image.original;
 
     img.onload = () => {
-      const resizedCanvas = canvasResize(
-        img,
-        Math.round(img.width / 2),
-        Math.round(img.height / 2)
-      );
-      const rotatedCanvas = canvasRotate(resizedCanvas, 90);
-      const flippedHCanvas = canvasFlipHorizontal(rotatedCanvas, true);
-      const flippedVCanvas = canvasFlipVertical(flippedHCanvas, true);
+      const operations = [
+        {
+          func: "resize",
+          args: [Math.round(img.width / 2), Math.round(img.height / 2)],
+        },
+        // { func: "rotate", args: [90] },
+        // { func: "flip", args: ["H"] },
+        // { func: "flip", args: ["V"] },
+        { func: "crop", args: [crop.x, crop.y, crop.w, crop.h] },
+      ];
+      const updatedCanvas = new updateCanvas(img);
+      operations.forEach((operation) => {
+        updatedCanvas[operation.func](...operation.args);
+      });
 
-      // use rotateFlip array and iterate its items
-
-      setBase64(flippedVCanvas.toDataURL("image/jpeg"));
+      setBase64(updatedCanvas.get().toDataURL("image/jpeg"));
       setLoading(false);
     };
-
-    // img.onload = () => {
-    //   // const ratio = image.width / width;
-    //   // const canvas = document.createElement("canvas");
-    //   // canvas.width = Math.round(crop.w * ratio);
-    //   // canvas.height = Math.round(crop.h * ratio);
-    //   // const ctx = canvas.getContext("2d");
-    //   // ctx.drawImage(
-    //   //   img,
-    //   //   Math.round(crop.x * ratio),
-    //   //   Math.round(crop.y * ratio),
-    //   //   Math.round(crop.w * ratio),
-    //   //   Math.round(crop.h * ratio),
-    //   //   0,
-    //   //   0,
-    //   //   Math.round(crop.w * ratio),
-    //   //   Math.round(crop.h * ratio)
-    //   // );
-    //   // setBase64(canvas.toDataURL("image/jpeg"));
-    //   // setLoading(false);
   }, []);
 
   return (

@@ -314,66 +314,6 @@ const getCropPointsBR = (...args) => {
   return { x, y, w, h };
 };
 
-const getRotatedPoint = (x, y, cx, cy, theta) => {
-  let tempX = x - cx;
-  let tempY = y - cy;
-
-  // now apply rotation
-  let rotatedX = tempX * Math.cos(theta) - tempY * Math.sin(theta);
-  let rotatedY = tempX * Math.sin(theta) + tempY * Math.cos(theta);
-
-  // translate back
-  x = rotatedX + cx;
-  y = rotatedY + cy;
-  let point = { x: x, y: y };
-  return point;
-};
-
 export const degree2Rad = (degree) => {
   return (degree * Math.PI) / 180;
-};
-
-export const getBoundingRect = (width, height, degree) => {
-  let rad = degree2Rad(degree);
-  let points = [
-    { x: 0, y: 0 },
-    { x: width, y: 0 },
-    { x: width, y: height },
-    { x: 0, y: height },
-  ];
-  let minX = undefined;
-  let minY = undefined;
-  let maxX = 0;
-  let maxY = 0;
-  for (let index = 0; index < points.length; index++) {
-    const point = points[index];
-    const rotatedPoint = getRotatedPoint(
-      point.x,
-      point.y,
-      width / 2,
-      height / 2,
-      rad
-    );
-    if (minX == undefined) {
-      minX = rotatedPoint.x;
-    } else {
-      minX = Math.min(rotatedPoint.x, minX);
-    }
-    if (minY == undefined) {
-      minY = rotatedPoint.y;
-    } else {
-      minY = Math.min(rotatedPoint.y, minY);
-    }
-    maxX = Math.max(rotatedPoint.x, maxX);
-    maxY = Math.max(rotatedPoint.y, maxY);
-  }
-  let rectWidth = maxX - minX;
-  let rectHeight = maxY - minY;
-  let rect = {
-    x: minX,
-    y: minY,
-    width: rectWidth,
-    height: rectHeight,
-  };
-  return rect;
 };
