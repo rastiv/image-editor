@@ -2,6 +2,71 @@ import { useState, useEffect } from "react";
 import { Spinner } from "@/components/Spinner";
 import { degree2Rad, getBoundingRect } from "./editor-utils";
 
+const canvasResize = (prevCnv, newWidth, newHeight) => {
+  const cnv = document.createElement("canvas");
+  const ctx = cnv.getContext("2d");
+  cnv.width = newWidth;
+  cnv.height = newHeight;
+  ctx.drawImage(prevCnv, 0, 0, newWidth, newHeight);
+  return cnv;
+};
+
+const canvasRotate = (prevCnv, degree) => {
+  const cnv = document.createElement("canvas");
+  const ctx = cnv.getContext("2d");
+  const is180 = degree === 0 || degree === 180;
+
+  cnv.width = is180 ? prevCnv.width : prevCnv.height;
+  cnv.height = is180 ? prevCnv.height : prevCnv.width;
+
+  let translateX =
+    degree === 90 ? prevCnv.height : degree === 180 ? prevCnv.width : 0;
+
+  let translateY =
+    degree === 180 ? prevCnv.height : degree === 270 ? prevCnv.width : 0;
+
+  ctx.translate(translateX, translateY);
+  ctx.rotate(degree2Rad(degree));
+  ctx.drawImage(prevCnv, 0, 0, prevCnv.width, prevCnv.height);
+  return cnv;
+};
+
+const canvasFlipHorizontal = (prevCnv, flip) => {
+  const cnv = document.createElement("canvas");
+  const ctx = cnv.getContext("2d");
+
+  cnv.width = prevCnv.width;
+  cnv.height = prevCnv.height;
+  ctx.scale(flip ? -1 : 1, 1);
+
+  ctx.drawImage(
+    prevCnv,
+    flip ? -prevCnv.width : 0,
+    0,
+    prevCnv.width,
+    prevCnv.height
+  );
+  return cnv;
+};
+
+const canvasFlipVertical = (prevCnv, flip) => {
+  const cnv = document.createElement("canvas");
+  const ctx = cnv.getContext("2d");
+
+  cnv.width = prevCnv.width;
+  cnv.height = prevCnv.height;
+  ctx.scale(1, flip ? -1 : 1);
+
+  ctx.drawImage(
+    prevCnv,
+    0,
+    flip ? -prevCnv.height : 0,
+    prevCnv.width,
+    prevCnv.height
+  );
+  return cnv;
+};
+
 const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
   const [loading, setLoading] = useState(true);
   const [base64, setBase64] = useState("");
@@ -12,55 +77,18 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     img.src = image.original;
 
     img.onload = () => {
-      const rotate = 90;
-      const flipH = true;
-      const flipV = false;
-      let degree =
-        (flipH && !flipV) || (!flipH && flipV) ? rotate * -1 : rotate;
-
-      // --- ROTATE ---
-      const rotateCanvas = document.createElement("canvas");
-      const rotateCtx = rotateCanvas.getContext("2d");
-
-      const is90 = degree === 0 || degree === 180 || degree === -180;
-
-      rotateCanvas.width = is90 ? img.width : img.height;
-      rotateCanvas.height = is90 ? img.height : img.width;
-
-      let translateX =
-        degree === 90 || degree === -270
-          ? img.height
-          : degree === 180 || degree === -180
-          ? img.width
-          : 0;
-
-      let translateY =
-        degree === 180 || degree === -180
-          ? img.height
-          : degree === 270 || degree === -90
-          ? img.width
-          : 0;
-
-      rotateCtx.translate(translateX, translateY);
-      rotateCtx.rotate(degree2Rad(degree));
-      rotateCtx.drawImage(img, 0, 0, img.width, img.height);
-
-      // --- FLIP ---
-      const flipCanvas = document.createElement("canvas");
-      const flipCtx = flipCanvas.getContext("2d");
-
-      flipCanvas.width = rotateCanvas.width;
-      flipCanvas.height = rotateCanvas.height;
-      flipCtx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
-      flipCtx.drawImage(
-        rotateCanvas,
-        flipH ? -img.height : 0,
-        flipV ? -img.width : 0,
-        rotateCanvas.width,
-        rotateCanvas.height
+      const resizedCanvas = canvasResize(
+        img,
+        Math.round(img.width / 2),
+        Math.round(img.height / 2)
       );
+      const rotatedCanvas = canvasRotate(resizedCanvas, 90);
+      const flippedHCanvas = canvasFlipHorizontal(rotatedCanvas, true);
+      const flippedVCanvas = canvasFlipVertical(flippedHCanvas, true);
 
-      setBase64(flipCanvas.toDataURL("image/jpeg"));
+      // use rotateFlip array and iterate its items
+
+      setBase64(flippedVCanvas.toDataURL("image/jpeg"));
       setLoading(false);
     };
 
@@ -83,64 +111,6 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
     //   // );
     //   // setBase64(canvas.toDataURL("image/jpeg"));
     //   // setLoading(false);
-
-    //   // 1. resize image
-    //   const newWidth = Math.round(image.width * 0.15);
-    //   const newHeight = Math.round(image.height * 0.15);
-    //   const resizedCanvas = document.createElement("canvas");
-    //   resizedCanvas.width = newWidth;
-    //   resizedCanvas.height = newHeight;
-    //   const resizedCtx = resizedCanvas.getContext("2d");
-    //   resizedCtx.drawImage(
-    //     img,
-    //     0,
-    //     0,
-    //     image.width,
-    //     image.height,
-    //     0,
-    //     0,
-    //     newWidth,
-    //     newHeight
-    //   );
-
-    //   // 2. rotate image
-    //   const degree = 90;
-    //   const rotatedCanvas = document.createElement("canvas");
-    //   const rotatedRect = getBoundingRect(newWidth, newHeight, degree);
-    //   rotatedCanvas.width = rotatedRect.width;
-    //   rotatedCanvas.height = rotatedRect.height;
-    //   const rotatedCtx = rotatedCanvas.getContext("2d");
-    //   rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
-    //   rotatedCtx.rotate(degree2Rad(degree));
-    //   rotatedCtx.drawImage(resizedCanvas, -newWidth / 2, -newHeight / 2);
-
-    //   // 3. flip horizontally and vertically
-    //   // https://jsfiddle.net/yong/ZJQX5/
-    //   const flipH = true;
-    //   const flipV = true;
-    //   const scaleH = flipH ? -1 : 1;
-    //   const scaleV = flipV ? -1 : 1;
-    //   const positioX = flipH ? rotatedRect.width * -1 : 0;
-    //   const positioY = flipV ? rotatedRect.height * -1 : 0;
-    //   const flippedCanvas = document.createElement("canvas");
-    //   flippedCanvas.width = rotatedRect.width;
-    //   flippedCanvas.height = rotatedRect.height;
-    //   const flippedCtx = flippedCanvas.getContext("2d");
-    //   flippedCtx.scale(scaleH, scaleV);
-    //   flippedCtx.drawImage(
-    //     rotatedCanvas,
-    //     positioX,
-    //     positioY,
-    //     rotatedRect.width,
-    //     rotatedRect.height
-    //   );
-
-    //   // 5. crop image
-
-    //   setBase64(flippedCanvas.toDataURL("image/jpeg"));
-    //   // console.log(rotatedCanvas.toDataURL("image/jpeg"));
-    //   setLoading(false);
-    // };
   }, []);
 
   return (
