@@ -116,8 +116,7 @@ const ImageEditor = ({ image, onSave }) => {
         <ImageEditorForm
           setApply={setApply}
           crop={crop}
-          width={wrapperRef.current?.offsetWidth}
-          wrapper={wrapperRef.current}
+          wrapperWidth={wrapperRef.current?.offsetWidth}
           image={image}
           onSave={onSave}
         />

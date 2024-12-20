@@ -3,6 +3,7 @@ import { Spinner } from "@/components/Spinner";
 import { degree2Rad } from "./editor-utils";
 
 function updateCanvas(img) {
+  const originalWidth = img.width;
   let prevCnv = img;
 
   return {
@@ -62,23 +63,30 @@ function updateCanvas(img) {
       return this;
     },
 
-    crop: function (x, y, w, h) {
+    crop: function (wrapperWidth, x, y, w, h) {
       const cnv = document.createElement("canvas");
       const ctx = cnv.getContext("2d");
 
-      const ratio = prevCnv.width / w;
-      cnv.width = Math.round(w * ratio);
-      cnv.height = Math.round(h * ratio);
+      const ratio = prevCnv.width / wrapperWidth;
+      const mapCrop = {
+        x: Math.round(x * ratio),
+        y: Math.round(y * ratio),
+        w: Math.round(w * ratio),
+        h: Math.round(h * ratio),
+      };
+      console.log(ratio, mapCrop);
+      cnv.width = mapCrop.w;
+      cnv.height = mapCrop.h;
       ctx.drawImage(
         img,
-        Math.round(x * ratio),
-        Math.round(y * ratio),
-        Math.round(w * ratio),
-        Math.round(h * ratio),
+        mapCrop.x,
+        mapCrop.y,
+        mapCrop.w,
+        mapCrop.h,
         0,
         0,
-        Math.round(w * ratio),
-        Math.round(h * ratio)
+        mapCrop.w,
+        mapCrop.h
       );
 
       prevCnv = cnv;
@@ -91,7 +99,7 @@ function updateCanvas(img) {
   };
 }
 
-const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
+const ImageEditorForm = ({ setApply, crop, wrapperWidth, image, onSave }) => {
   const [loading, setLoading] = useState(true);
   const [base64, setBase64] = useState("");
 
@@ -109,7 +117,10 @@ const ImageEditorForm = ({ setApply, crop, width, image, onSave }) => {
         // { func: "rotate", args: [90] },
         // { func: "flip", args: ["H"] },
         // { func: "flip", args: ["V"] },
-        { func: "crop", args: [crop.x, crop.y, crop.w, crop.h] },
+        {
+          func: "crop",
+          args: [wrapperWidth, crop.x, crop.y, crop.w, crop.h],
+        },
       ];
       const updatedCanvas = new updateCanvas(img);
       operations.forEach((operation) => {
