@@ -78,7 +78,7 @@ function updateCanvas(img) {
       cnv.width = mapCrop.w;
       cnv.height = mapCrop.h;
       ctx.drawImage(
-        img,
+        prevCnv,
         mapCrop.x,
         mapCrop.y,
         mapCrop.w,
